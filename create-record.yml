@@ -24,7 +24,7 @@
         record: ansible2.ac-operations.com
         type: A
 #        value: 22.22.22.22
-        value: {{ record-value }}
+        value: {{ record_value }}
 #        type: CNAME
 #        value: "{{ item.public_dns_name }}"
         overwrite: yes
