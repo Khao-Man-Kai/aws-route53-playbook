@@ -1,3 +1,6 @@
+#
+# Ansible Playbook: create or delete A record in AWS Route53
+#
 ---
 - hosts: localhost
   gather_facts: no
@@ -5,9 +8,9 @@
   tasks:
     - name: Set public dns A record in Route53
       route53:
+        type: A
         command: "{{ command }}"
         zone: "{{ zone }}"
         record: "{{ record }}"
         value: "{{ value }}"
-        ttl: 300
-        type: A
+        ttl: "{{ ttl }}"
