@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - block:
+      - name: Set public dns A record in Route53
+        route53:
+          command: "{{ command }}"
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: 300
+          type: A
+        with_items: ec2.instance
+      when: type == 'a' and alias == 'false'
