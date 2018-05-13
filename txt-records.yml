@@ -9,8 +9,14 @@
     - name: Set dns TXT record in Route53
       route53:
         type: TXT
-        command: "{{ create }}"
-        zone: "{{ zone }"
-        record: "{{ record }}"
-        value: '{{ value }}'
-        ttl: "{{ ttl }}"
+#        command: "{{ create }}"
+#        zone: "{{ zone }"
+#        record: "{{ record }}"
+#        value: '{{ value }}'
+#        ttl: "{{ ttl }}"
+
+        command: create
+        zone: ac-operations.com
+        record: test103.ac-operations.com
+        value: '"{{ value }}"'
+        ttl: 7200
