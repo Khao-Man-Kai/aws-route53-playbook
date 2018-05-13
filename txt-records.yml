@@ -10,7 +10,7 @@
       route53:
         type: TXT
         command: "{{ create }}"
-        zone: "{{ zone }}"
+        zone: "{{ zone }"
         record: "{{ record }}"
         value: '{{ value }}'
-        ttl: "{{ ttl }}
+        ttl: "{{ ttl }}"
