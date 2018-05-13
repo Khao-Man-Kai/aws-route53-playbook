@@ -9,7 +9,7 @@
     - name: Set dns Alias record in Route53
       route53:
         type: A
-        command: "{{ command }}" 
+        command: "{{ command }}"    # create or delete
         zone: "{{ zone }}"
         record: "{{ record }}"
         value: "{{ elb_dns_name }}"
