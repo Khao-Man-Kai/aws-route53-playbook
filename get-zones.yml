@@ -1,0 +1,30 @@
+#
+# Ansible Playbook: getting dns hosted zones in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - block:
+      - name: Getting dns hosted zones in Route53
+        route53_facts:
+          query: hosted_zone
+        register: hosted_zones
+      when: query_type == 'list'
+
+    - block:
+      - name: List the first 20 resource record sets in a given hosted zone in Route53
+        route53_facts:
+          query: hosted_zone
+          hosted_zone_method: count
+        register: hosted_zone_coun
+      when: query_type == 'count'
+
+# Todo 他にも拡充していく
+#    - block:
+#      - name: XXX XXX XXX XXXX in Route53
+#
+#        // ...snip...
+#
+#      when: query_type == 'count'
