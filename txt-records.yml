@@ -1,0 +1,16 @@
+#
+# Ansible Playbook: create or delete dns TXT record in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Set dns TXT record in Route53
+      route53:
+        type: TXT
+        command: "{{ create }}"
+        zone: "{{ zone }}"
+        record: "{{ record }}"
+        value: '{{ value }}'
+        ttl: "{{ ttl }}
