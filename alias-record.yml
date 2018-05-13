@@ -1,0 +1,56 @@
+#
+# Ansible Playbook: create or delete dns A-Alias, CNAME-Alias record in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - block:
+      - name: Set dns A-Alias record in Route53
+        route53:
+          type: A
+          command: "{{ command }}"    # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ elb_dns_name }}"
+          ttl: "{{ ttl }}"
+          alias: True
+          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+      when: type == 'a'
+
+    - block:
+      - name: Set dns CNAME-Alias record in Route53
+        route53:
+          type: CNAME
+          command: "{{ command }}"    # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          ttl: "{{ ttl }}"
+          alias: True
+          value: "{{ elb_dns_name }}"
+          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+          # Routing policy
+          # identifier: "host1@www"
+          # weight: 100
+          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
+      when: (type == 'cname') and 
+            (elb_dns_name is defined and elb_hosted_zone_id is defined)
+
+# // Todo このパターンも後で確認 identifier/weight/health_check
+#    - block:
+#      - name: Set dns CNAME-Alias record in Route53
+#        route53:
+#          type: CNAME
+#          command: "{{ command }}"    # create or delete
+#          zone: "{{ zone }}"
+#          record: "{{ record }}"
+#          ttl: "{{ ttl }}"
+#          alias: True
+          # Routing policy
+          # identifier: "host1@www"
+          # weight: 100
+          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
+#      when: (type == 'cname') and 
+#            (elb_dns_name is undefined and elb_hosted_zone_id is undefined)
+

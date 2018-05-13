@@ -1,0 +1,16 @@
+#
+# Ansible Playbook: create or delete dns CNAME record in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Set dns CNAME record in Route53
+      route53:
+        type: CNAME
+        command: "{{ command }}"   # create or delete
+        zone: "{{ zone }}"
+        record: "{{ record }}"
+        value: "{{ value }}"
+        ttl: "{{ ttl }}"
