@@ -1,0 +1,15 @@
+#
+# Ansible Playbook: get dns records in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Get dns records in Route53
+      route53:
+        type: "{{ type }}"
+        state: get
+        zone: "{{ zone }}"
+        record: "{{ record }}"
+      register: rec

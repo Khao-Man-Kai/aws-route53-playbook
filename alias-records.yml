@@ -1,18 +1,18 @@
 #
-# Ansible Playbook: create or delete Alias record in AWS Route53
+# Ansible Playbook: create or delete dns Alias record in AWS Route53
 #
 ---
 - hosts: localhost
   gather_facts: no
   connection: local
   tasks:
-    - name: Set public dns Alias record in Route53
+    - name: Set dns Alias record in Route53
       route53:
         type: A
         command: "{{ command }}" 
         zone: "{{ zone }}"
         record: "{{ record }}"
         value: "{{ elb_dns_name }}"
-        ttl: 300
+        ttl: "{{ ttl }}"
         alias: True
         alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
