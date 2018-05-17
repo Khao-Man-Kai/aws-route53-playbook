@@ -6,10 +6,24 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Get dns records in Route53
-      route53:
-        type: "{{ type }}"
-        state: get
-        zone: "{{ zone }}"
-        record: "{{ record }}"
-      register: rec
+    - block:
+      - name: Get dns records in Route53
+        route53:
+          type: "{{ type }}"
+          state: get
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: rec
+      when: private_hosted_zone == 'false'
+
+    - block:
+      - name: Get dns records in Route53
+        route53:
+          type: "{{ type }}"
+          state: get
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: rec
+      when: private_hosted_zone == 'true'
