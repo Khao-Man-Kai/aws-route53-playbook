@@ -1,0 +1,30 @@
+#
+# Ansible Playbook: create or delete dns MX record in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - block:
+      - name: Set hosted zones dns MX record in Route53
+        route53:
+          type: MX
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+      when: private_hosted_zone == 'false'
+
+    - block:
+      - name: Set private hosted zones dns MX record in Route53
+        route53:
+          type: MX
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+      when: private_hosted_zone == 'true'
