@@ -6,11 +6,24 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Set dns CNAME record in Route53
-      route53:
-        type: CNAME
-        command: "{{ command }}"   # create or delete
-        zone: "{{ zone }}"
-        record: "{{ record }}"
-        value: "{{ value }}"
-        ttl: "{{ ttl }}"
+    - block:
+      - name: Set dns CNAME record in Route53, Hosted zone.
+        route53:
+          type: CNAME
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+      when: private_hosted_zone == 'false'
+
+    - block:
+      - name: Set dns CNAME record in Route53, Private hosted zone.
+        route53:
+          type: CNAME
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+      when: private_hosted_zone == 'true'

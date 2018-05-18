@@ -6,11 +6,24 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Set dns TXT record in Route53
-      route53:
-        type: TXT
-        command: "{{ command }}"   # create or delete
-        zone: "{{ zone }}"
-        record: "{{ record }}"
-        value: '"{{ value }}"'
-        ttl: "{{ ttl }}"
+    - block:
+     - name: Set dns TXT record in Route53, Hosted zone.
+       route53:
+         type: TXT
+         command: "{{ command }}"   # create or delete
+         record: "{{ record }}"
+         value: '"{{ value }}"'
+         ttl: "{{ ttl }}"
+      when: private_hosted_zone == 'false'
+
+    - block:
+      - name: Set dns TXT record in Route53, Private hosted zone.
+        route53:
+          type: TXT
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: '"{{ value }}"'
+          ttl: "{{ ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+      when: private_hosted_zone == 'true'
