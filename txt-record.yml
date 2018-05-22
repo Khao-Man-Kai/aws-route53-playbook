@@ -11,6 +11,7 @@
         route53:
           type: TXT
           command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
           record: "{{ record }}"
           value: '"{{ value }}"'
           ttl: "{{ ttl }}"
