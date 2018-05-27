@@ -17,7 +17,21 @@
           ttl: "{{ ttl }}"
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
-      when: type == 'a'
+      when: type == 'a'and private_hosted_zone == 'false'
+
+    - block:
+      - name: Set dns A-Alias record in Route53
+        route53:
+          type: A
+          command: "{{ command }}"    # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ elb_dns_name }}"
+          ttl: "{{ ttl }}"
+          alias: True
+          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+          private_zone: "{{ private_hosted_zone }}"
+      when: type == 'a'and private_hosted_zone == 'true'
 
     - block:
       - name: Set dns CNAME-Alias record in Route53
