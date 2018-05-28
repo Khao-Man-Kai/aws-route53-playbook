@@ -15,6 +15,7 @@
           record: "{{ record }}"
           value: "{{ elb_dns_name }}"
           ttl: "{{ ttl }}"
+          overwrite: true
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
       when: type == 'a'and private_hosted_zone == 'false'
@@ -28,6 +29,7 @@
           record: "{{ record }}"
           value: "{{ elb_dns_name }}"
           ttl: "{{ ttl }}"
+          overwrite: true
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
           private_zone: "{{ private_hosted_zone }}"
@@ -41,6 +43,7 @@
           zone: "{{ zone }}"
           record: "{{ record }}"
           ttl: "{{ ttl }}"
+          overwrite: true
           alias: True
           value: "{{ elb_dns_name }}"
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"

@@ -15,6 +15,7 @@
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
+          overwrite: true
       when: private_hosted_zone == 'false'
 
     - block:
@@ -26,4 +27,5 @@
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
+          overwrite: true
       when: private_hosted_zone == 'true'
