@@ -18,6 +18,7 @@
           overwrite: true
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+        register: a_alias_record
       when: type == 'a'and private_hosted_zone == 'false'
 
     - block:
@@ -33,26 +34,36 @@
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
           private_zone: "{{ private_hosted_zone }}"
+        register: a_alias_record___p
       when: type == 'a'and private_hosted_zone == 'true'
 
+#    - block:
+#      - name: Set dns CNAME-Alias record in Route53
+#        route53:
+#          type: CNAME
+#          command: "{{ command }}"    # create or delete
+#          zone: "{{ zone }}"
+#          record: "{{ record }}"
+#          ttl: "{{ ttl }}"
+#          overwrite: true
+#          alias: True
+#          value: "{{ elb_dns_name }}"
+#          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+#          # Routing policy
+#          # identifier: "host1@www"
+#          # weight: 100
+#          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
+#        register: cname_alias_record___p
+#      when: (type == 'cname') and 
+#            (elb_dns_name is defined and elb_hosted_zone_id is defined)
+#
     - block:
-      - name: Set dns CNAME-Alias record in Route53
+      - name: Exception Handler - Invalid parameter resources
         route53:
-          type: CNAME
-          command: "{{ command }}"    # create or delete
-          zone: "{{ zone }}"
-          record: "{{ record }}"
-          ttl: "{{ ttl }}"
-          overwrite: true
-          alias: True
-          value: "{{ elb_dns_name }}"
-          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
-          # Routing policy
-          # identifier: "host1@www"
-          # weight: 100
-          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
-      when: (type == 'cname') and 
-            (elb_dns_name is defined and elb_hosted_zone_id is defined)
+        failed_when: true
+      when: (a_alias_record|skipped)
+             and
+            (a_alias_record___p|skipped)
 
 # // Todo このパターンも後で確認 identifier/weight/health_check
 #    - block:

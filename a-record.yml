@@ -7,7 +7,7 @@
   connection: local
   tasks:
     - block:
-      - name: Set hosted zones dns A record in Route53
+      - name: Set hosted zone dns A record in Route53
         route53:
           type: A
           command: "{{ command }}"   # create or delete
@@ -16,10 +16,11 @@
           value: "{{ value }}"
           ttl: "{{ ttl }}"
           overwrite: true
+        register: a_record
       when: private_hosted_zone == 'false' and routing_policy == 'false'
 
     - block:
-      - name: Set hosted zones dns A record and routing policy in Route53
+      - name: Set hosted zone dns A record and routing policy in Route53
         route53:
           type: A
           command: "{{ command }}"   # create or delete
@@ -32,10 +33,11 @@
           weight: "{{ weight }}"
           identifier: "{{ set_id }}"
 #          health_check: "{{ health_check_id }}"
+        register: a_record___r
       when: private_hosted_zone == 'false' and routing_policy == 'true'
 
     - block:
-      - name: Set private hosted zones dns A record in Route53
+      - name: Set private hosted zone dns A record in Route53
         route53:
           type: A
           command: "{{ command }}"   # create or delete
@@ -45,10 +47,11 @@
           ttl: "{{ ttl }}"
           overwrite: true
           private_zone: "{{ private_hosted_zone }}"
+        register: a_record___p
       when: private_hosted_zone == 'true' and routing_policy == 'false'
 
     - block:
-      - name: Set private hosted zones dns A and routing policy  record in Route53
+      - name: Set private hosted zone dns A and routing policy  record in Route53
         route53:
           type: A
           command: "{{ command }}"   # create or delete
@@ -62,4 +65,17 @@
           weight: "{{ weight }}"
           identifier: "{{ set_id }}"
 #          health_check: "{{ health_check_id }}"
+        register: a_record___p_r
       when: private_hosted_zone == 'true' and routing_policy == 'true'
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53:
+        failed_when: true
+      when: (a_record|skipped)
+             and
+            (a_record___r|skipped)
+             and
+            (a_record___p|skipped)
+             and
+            (a_record___p_r|skipped)

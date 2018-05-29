@@ -7,23 +7,31 @@
   connection: local
   tasks:
     - block:
-      - name: Get dns records in Route53
+      - name: Get hosted zone dns record in Route53
         route53:
           type: "{{ type }}"
           state: get
           zone: "{{ zone }}"
           record: "{{ record }}"
           private_zone: "{{ private_hosted_zone }}"
-        register: rec
+        register: get_record
       when: private_hosted_zone == 'false'
 
     - block:
-      - name: Get dns records in Route53
+      - name: Get private hosted zone dns record in Route53
         route53:
           type: "{{ type }}"
           state: get
           zone: "{{ zone }}"
           record: "{{ record }}"
           private_zone: "{{ private_hosted_zone }}"
-        register: rec
+        register: pri_get_record
       when: private_hosted_zone == 'true'
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53_facts:
+        failed_when: true
+      when: (get_record|skipped)
+             and
+            (pri_get_record|skipped)

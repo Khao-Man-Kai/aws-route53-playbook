@@ -3,7 +3,7 @@
 #
 ---
 - hosts: localhost
-#  gather_facts: no
+  gather_facts: no
   connection: local
   tasks:
     - block:
@@ -18,8 +18,16 @@
         route53_facts:
           query: hosted_zone
           hosted_zone_method: count
-        register: hosted_zone_coun
+        register: hosted_zone_count
       when: query_type == 'count'
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53_facts:
+        failed_when: true
+      when: (hosted_zone_count|skipped) 
+             and 
+            (hosted_zones|skipped)
 
 # Todo 他にも拡充していく
 #    - block:
