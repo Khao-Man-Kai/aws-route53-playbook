@@ -16,7 +16,8 @@
           value: "{{ value }}"
           ttl: "{{ ttl }}"
           overwrite: true
-      when: private_hosted_zone == 'false'
+        register: cname_record
+      when: type == 'cname' and private_hosted_zone == 'false'
 
     - block:
       - name: Set dns CNAME record in Route53, Private hosted zone.
@@ -28,4 +29,14 @@
           value: "{{ value }}"
           ttl: "{{ ttl }}"
           overwrite: true
-      when: private_hosted_zone == 'true'
+          private_zone: "{{ private_hosted_zone }}"
+        register: cname_record___p
+      when: type == 'cname' and private_hosted_zone == 'true'
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53:
+        failed_when: true
+      when: (cname_record|skipped)
+             and
+            (cname_record___p|skipped)
