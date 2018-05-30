@@ -16,6 +16,7 @@
           value: '"{{ value }}"'
           ttl: "{{ ttl }}"
           overwrite: true
+        register: txt_record
       when: private_hosted_zone == 'false'
 
     - block:
@@ -29,4 +30,13 @@
           ttl: "{{ ttl }}"
           overwrite: true
           private_zone: "{{ private_hosted_zone }}"
+        register: txt_record___p
       when: private_hosted_zone == 'true'
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53:
+        failed_when: true
+      when: (txt_record|skipped)
+             and
+            (txt_record___p|skipped)
