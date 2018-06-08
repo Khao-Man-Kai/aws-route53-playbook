@@ -1,0 +1,103 @@
+#
+# Ansible Playbook: create or delete dns A record in AWS Route53
+#
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - block:
+      - name: Set hosted zone dns A record in Route53
+        route53:
+          type: A
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          overwrite: true
+        register: a_record
+      when: private_hosted_zone == 'false' and routing_policy == 'false'
+
+    - block:
+      - name: Set hosted zone dns A record and routing policy in Route53
+        route53:
+          type: A
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          overwrite: true
+          # Routing policy
+          weight: "{{ weight }}"
+          identifier: "{{ set_id }}"
+#          health_check: "{{ health_check_id }}"
+        register: a_record___r
+      when: private_hosted_zone == 'false' and routing_policy == 'true'
+
+    - block:
+      - name: Set private hosted zone dns A record in Route53
+        route53:
+          type: A
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          overwrite: true
+          private_zone: "{{ private_hosted_zone }}"
+        register: a_record___p
+      when: private_hosted_zone == 'true' and routing_policy == 'false'
+
+    - block:
+      - name: Set private hosted zone dns A and routing policy  record in Route53
+        route53:
+          type: A
+          command: "{{ command }}"   # create or delete
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          overwrite: true
+          private_zone: "{{ private_hosted_zone }}"
+          # Routing policy
+          weight: "{{ weight }}"
+          identifier: "{{ set_id }}"
+#          health_check: "{{ health_check_id }}"
+        register: a_record___p_r
+      when: private_hosted_zone == 'true' and routing_policy == 'true'
+
+    - block:
+      - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
+        pause: minutes=1
+      when: (a_record|success)
+             or
+            (a_record___r|success)
+             or
+            (a_record___p|success)
+             or
+            (a_record___p_r|success)
+
+    - block:
+      - name: DNS lookup that {{ type }} record in Route53
+        debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
+      when: (a_record|success)
+             or
+            (a_record___r|success)
+             or
+            (a_record___p|success)
+             or
+            (a_record___p_r|success)
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53:
+        failed_when: true
+      when: (a_record|skipped)
+             and
+            (a_record___r|skipped)
+             and
+            (a_record___p|skipped)
+             and
+            (a_record___p_r|skipped)
