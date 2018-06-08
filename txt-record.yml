@@ -34,6 +34,20 @@
       when: private_hosted_zone == 'true'
 
     - block:
+      - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
+        pause: minutes=1
+      when: (txt_record|success)
+             or
+            (txt_record___p|success)
+
+    - block:
+      - name: DNS lookup that {{ type }} record in Route53
+        debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
+      when: (txt_record|success)
+             or
+            (txt_record___p|success)
+
+    - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
