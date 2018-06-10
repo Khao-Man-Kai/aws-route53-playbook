@@ -54,7 +54,7 @@
           type: TXT
           state: absent
           zone: "{{ zone }}"
-          record: "{{ rec.set.record }}"
+          record: "{{ record }}"
           value: "{{ rec.set.value }}"
           ttl: "{{ rec.set.ttl }}"
           private_zone: "{{ private_hosted_zone }}"
