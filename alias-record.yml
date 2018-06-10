@@ -1,6 +1,8 @@
 #
 # Ansible Playbook: create or delete dns A-Alias, CNAME-Alias record in AWS Route53
 #
+#  AレコードのAliasは対応済みだが、CNAMEのAliasはまだ未対応
+#
 ---
 - hosts: localhost
   gather_facts: no
