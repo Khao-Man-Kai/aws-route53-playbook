@@ -17,7 +17,7 @@
           ttl: "{{ create.ttl }}"
           overwrite: true
         register: create_txt_record
-      when: command == 'create' and private_hosted_zone == 'false'
+      when: create.command == 'create' and create.private_hosted_zone == 'false'
 
     - block:
       - name: Create dns TXT record in Route53, Private hosted zone.
