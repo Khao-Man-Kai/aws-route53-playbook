@@ -11,52 +11,55 @@
         route53:
           type: TXT
           command: create
-          zone: "{{ create.zone }}"
-          record: "{{ create.record }}"
-          value: '"{{ create.value }}"'
-          ttl: "{{ create.ttl }}"
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: '"{{ value }}"'
+          ttl: "{{ ttl }}"
           overwrite: true
         register: create_txt_record
-      when: create.command == 'create' and create.private_hosted_zone == 'false' and create is defined
+      when: command == 'create' 
+            and 
+            private_hosted_zone == 'false'
 
     - block:
       - name: Create dns TXT record in Route53, Private hosted zone.
         route53:
           type: TXT
           command: create
-          zone: "{{ create.zone }}"
-          record: "{{ create.record }}"
-          value: '{{ create.value }}'
-          ttl: "{{ create.ttl }}"
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: '{{ value }}'
+          ttl: "{{ ttl }}"
           overwrite: true
-          private_zone: "{{ create.private_hosted_zone }}"
+          private_zone: "{{ private_hosted_zone }}"
         register: create_txt_record___p
-      when: create.command == 'create' and create.private_hosted_zone == 'true' and create is defined
+      when: command == 'create' 
+            and 
+            private_hosted_zone == 'true'
 
     - block:
       - name: Get dns TXT record in Route53, Hosted zone.
         route53:
           state: get
-          zone: "{{ delete.zone }}"
-          record: "{{ delete.record }}"
-          type: "{{ delete.type }}"
-          private_zone: "{{ delete.private_hosted_zone }}"
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          type: "{{ type }}"
+          private_zone: "{{ private_hosted_zone }}"
         register: rec
-      when: delete.command == 'delete' and delete is defined
+      when: command == 'delete'
 
     - block:
       - name: Delete dns TXT record in Route53, Hosted zone.
         route53:
           type: TXT
           state: absent
-          zone: "{{ delete.zone }}"
+          zone: "{{ zone }}"
           record: "{{ rec.set.record }}"
           value: "{{ rec.set.value }}"
           ttl: "{{ rec.set.ttl }}"
-          private_zone: "{{ delete.private_hosted_zone }}"
+          private_zone: "{{ private_hosted_zone }}"
         register: delete_txt_record
-      when: delete.command == 'delete' and delete is defined
-
+      when: delete.command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
