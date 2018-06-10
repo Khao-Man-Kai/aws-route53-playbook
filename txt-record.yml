@@ -17,7 +17,7 @@
           ttl: "{{ create.ttl }}"
           overwrite: true
         register: create_txt_record
-      when: create.command == 'create' and create.private_hosted_zone == 'false'
+      when: create.command == 'create' and create.private_hosted_zone == 'false' and create is defined
 
     - block:
       - name: Create dns TXT record in Route53, Private hosted zone.
@@ -31,7 +31,7 @@
           overwrite: true
           private_zone: "{{ create.private_hosted_zone }}"
         register: create_txt_record___p
-      when: create.command == 'create' and create.private_hosted_zone == 'true'
+      when: create.command == 'create' and create.private_hosted_zone == 'true' and create is defined
 
     - block:
       - name: Get dns TXT record in Route53, Hosted zone.
@@ -42,7 +42,7 @@
           type: "{{ delete.type }}"
           private_zone: "{{ delete.private_hosted_zone }}"
         register: rec
-      when: delete.command == 'delete'
+      when: delete.command == 'delete' and delete is defined
 
     - block:
       - name: Delete dns TXT record in Route53, Hosted zone.
@@ -55,7 +55,8 @@
           ttl: "{{ rec.set.ttl }}"
           private_zone: "{{ delete.private_hosted_zone }}"
         register: delete_txt_record
-      when: delete.command == 'delete'
+      when: delete.command == 'delete' and delete is defined
+
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
