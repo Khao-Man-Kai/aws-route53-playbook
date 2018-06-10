@@ -59,7 +59,7 @@
           ttl: "{{ rec.set.ttl }}"
           private_zone: "{{ private_hosted_zone }}"
         register: delete_txt_record
-      when: delete.command == 'delete'
+      when: command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
