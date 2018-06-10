@@ -71,24 +71,24 @@
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: minutes=1
-      when: (a_record|succeeded)
+      when: (a_record is not skipped)
              or
-            (a_record___r|succeeded)
+            (a_record___r is not skipped)
              or
-            (a_record___p|succeeded)
+            (a_record___p is not skipped)
              or
-            (a_record___p_r|succeeded)
+            (a_record___p_r is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
-      when: (a_record|succeeded)
+      when: (a_record is not skipped)
              or
-            (a_record___r|succeeded)
+            (a_record___r is not skipped)
              or
-            (a_record___p|succeeded)
+            (a_record___p is not skipped)
              or
-            (a_record___p_r|succeeded)
+            (a_record___p_r is not skipped)
 
     - block:
       - name: Exception Handler - Invalid parameter resources
