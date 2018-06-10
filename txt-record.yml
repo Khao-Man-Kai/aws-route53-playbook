@@ -28,7 +28,7 @@
           command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
-          value: '{{ value }}'
+          value: "'{{ value }}'"
           ttl: "{{ ttl }}"
           overwrite: true
           private_zone: "{{ private_hosted_zone }}"
