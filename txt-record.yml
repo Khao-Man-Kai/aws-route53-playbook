@@ -7,50 +7,80 @@
   connection: local
   tasks:
     - block:
-      - name: Set dns TXT record in Route53, Hosted zone.
+      - name: Create dns TXT record in Route53, Hosted zone.
         route53:
           type: TXT
-          command: "{{ command }}"   # create or delete
-          zone: "{{ zone }}"
-          record: "{{ record }}"
-          value: '"{{ value }}"'
-          ttl: "{{ ttl }}"
+          command: create
+          zone: "{{ create.zone }}"
+          record: "{{ create.record }}"
+          value: '"{{ create.value }}"'
+          ttl: "{{ create.ttl }}"
           overwrite: true
-        register: txt_record
-      when: private_hosted_zone == 'false'
+        register: create_txt_record
+      when: command == 'create' and private_hosted_zone == 'false'
 
     - block:
-      - name: Set dns TXT record in Route53, Private hosted zone.
+      - name: Create dns TXT record in Route53, Private hosted zone.
         route53:
           type: TXT
-          command: "{{ command }}"   # create or delete
+          command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
-          value: '"{{ value }}"'
+          value: '{{ value }}'
           ttl: "{{ ttl }}"
           overwrite: true
           private_zone: "{{ private_hosted_zone }}"
-        register: txt_record___p
-      when: private_hosted_zone == 'true'
+        register: create_txt_record___p
+      when: command == 'create' and private_hosted_zone == 'true'
+
+    - block:
+      - name: Get dns TXT record in Route53, Hosted zone.
+        route53:
+          state: get
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          type: "{{ type }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: rec
+      when: command == 'delete'
+
+    - block:
+      - name: Delete dns TXT record in Route53, Hosted zone.
+        route53:
+          type: TXT
+          state: absent
+          zone: "{{ zone }}"
+          record: "{{ rec.set.record }}"
+          value: "{{ rec.set.value }}"
+          ttl: "{{ rec.set.ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: delete_txt_record
+      when: command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: minutes=1
-      when: (txt_record is not skipped)
+      when: (create_txt_record is not skipped)
              or
-            (txt_record___p is not skipped)
+            (create_txt_record___p is not skipped)
+             or
+            (delete_txt_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
-      when: (txt_record is not skipped)
+      when: (create_txt_record is not skipped)
              or
-            (txt_record___p is not skipped)
+            (create_txt_record___p is not skipped)
+             or
+            (delete_txt_record is not skipped)
 
     - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
-      when: (txt_record|skipped)
+      when: (create_txt_record|skipped)
              and
-            (txt_record___p|skipped)
+            (create_txt_record___p|skipped)
+             and
+            (delete_txt_record|skipped)
