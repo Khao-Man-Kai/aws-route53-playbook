@@ -16,6 +16,7 @@
           value: "{{ value }}"
           ttl: "{{ ttl }}"
           overwrite: true
+        register: mx_record
       when: private_hosted_zone == 'false'
 
     - block:
@@ -29,4 +30,19 @@
           ttl: "{{ ttl }}"
           overwrite: true
           private_zone: "{{ private_hosted_zone }}"
+        register: mx_record___p
       when: private_hosted_zone == 'true'
+
+    - block:
+      - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
+        pause: minutes=1
+      when: (mx_record is not skipped)
+             or
+            (mx_record___p is not skipped)
+
+    - block:
+      - name: DNS lookup that {{ type }} record in Route53
+        debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
+      when: (mx_record is not skipped)
+             or
+            (mx_record___p is not skipped)
