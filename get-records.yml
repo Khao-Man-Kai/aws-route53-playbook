@@ -6,7 +6,7 @@
   gather_facts: no
   connection: local
   tasks:
-    - block:
+    - lock:
       - name: Get hosted zone dns record in Route53
         route53:
           type: "{{ type }}"
@@ -17,7 +17,7 @@
         register: get_record
       when: private_hosted_zone == 'false'
 
-    - block:
+    - lock:
       - name: Get private hosted zone dns record in Route53
         route53:
           type: "{{ type }}"
@@ -28,7 +28,7 @@
         register: pri_get_record
       when: private_hosted_zone == 'true'
 
-    - block:
+    - lock:
       - name: Exception Handler - Invalid parameter resources
         route53_facts:
         failed_when: true
