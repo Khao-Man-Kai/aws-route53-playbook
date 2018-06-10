@@ -37,26 +37,20 @@
         register: a_alias_record___p
       when: type == 'a'and private_hosted_zone == 'true'
 
-#    - block:
-#      - name: Set dns CNAME-Alias record in Route53
-#        route53:
-#          type: CNAME
-#          command: "{{ command }}"    # create or delete
-#          zone: "{{ zone }}"
-#          record: "{{ record }}"
-#          ttl: "{{ ttl }}"
-#          overwrite: true
-#          alias: True
-#          value: "{{ elb_dns_name }}"
-#          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
-#          # Routing policy
-#          # identifier: "host1@www"
-#          # weight: 100
-#          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
-#        register: cname_alias_record___p
-#      when: (type == 'cname') and 
-#            (elb_dns_name is defined and elb_hosted_zone_id is defined)
-#
+    - block:
+      - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
+        pause: minutes=1
+      when: (a_alias_record is not skipped)
+             or
+            (a_alias_record___p is not skipped)
+
+    - block:
+      - name: DNS lookup that {{ type }} record in Route53
+        debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
+      when: (a_alias_record is not skipped)
+             or
+            (a_alias_record___p is not skipped)
+
     - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
@@ -64,21 +58,3 @@
       when: (a_alias_record|skipped)
              and
             (a_alias_record___p|skipped)
-
-# // Todo このパターンも後で確認 identifier/weight/health_check
-#    - block:
-#      - name: Set dns CNAME-Alias record in Route53
-#        route53:
-#          type: CNAME
-#          command: "{{ command }}"    # create or delete
-#          zone: "{{ zone }}"
-#          record: "{{ record }}"
-#          ttl: "{{ ttl }}"
-#          alias: True
-          # Routing policy
-          # identifier: "host1@www"
-          # weight: 100
-          # health_check: "d994b780-3150-49fd-9205-356abdd42e75"
-#      when: (type == 'cname') and 
-#            (elb_dns_name is undefined and elb_hosted_zone_id is undefined)
-

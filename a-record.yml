@@ -51,7 +51,7 @@
       when: private_hosted_zone == 'true' and routing_policy == 'false'
 
     - block:
-      - name: Set private hosted zone dns A and routing policy  record in Route53
+      - name: Set private hosted zone dns A record and routing policy in Route53
         route53:
           type: A
           command: "{{ command }}"   # create or delete
