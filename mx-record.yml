@@ -46,3 +46,11 @@
       when: (mx_record is not skipped)
              or
             (mx_record___p is not skipped)
+
+    - block:
+      - name: Exception Handler - Invalid parameter resources
+        route53:
+        failed_when: true
+      when: (mx_record|skipped)
+             and
+            (mx_record___p|skipped)
