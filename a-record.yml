@@ -7,97 +7,83 @@
   connection: local
   tasks:
     - block:
-      - name: Set hosted zone dns A record in Route53
+      - name: Create dns A record in Route53
         route53:
           type: A
-          command: "{{ command }}"   # create or delete
+          command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
-          overwrite: true
-        register: a_record
-      when: private_hosted_zone == 'false' and routing_policy == 'false'
-
-    - block:
-      - name: Set hosted zone dns A record and routing policy in Route53
-        route53:
-          type: A
-          command: "{{ command }}"   # create or delete
-          zone: "{{ zone }}"
-          record: "{{ record }}"
-          value: "{{ value }}"
-          ttl: "{{ ttl }}"
-          overwrite: true
-          # Routing policy
-          weight: "{{ weight }}"
-          identifier: "{{ set_id }}"
-#          health_check: "{{ health_check_id }}"
-        register: a_record___r
-      when: private_hosted_zone == 'false' and routing_policy == 'true'
-
-    - block:
-      - name: Set private hosted zone dns A record in Route53
-        route53:
-          type: A
-          command: "{{ command }}"   # create or delete
-          zone: "{{ zone }}"
-          record: "{{ record }}"
-          value: "{{ value }}"
-          ttl: "{{ ttl }}"
-          overwrite: true
           private_zone: "{{ private_hosted_zone }}"
-        register: a_record___p
-      when: private_hosted_zone == 'true' and routing_policy == 'false'
+        register: create_a_record
+      when: command == 'create' and routing_policy == 'false'
 
     - block:
-      - name: Set private hosted zone dns A record and routing policy in Route53
+      - name: Create dns A record and routing policy in Route53
         route53:
           type: A
-          command: "{{ command }}"   # create or delete
+          command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
-          overwrite: true
           private_zone: "{{ private_hosted_zone }}"
           # Routing policy
           weight: "{{ weight }}"
           identifier: "{{ set_id }}"
 #          health_check: "{{ health_check_id }}"
-        register: a_record___p_r
-      when: private_hosted_zone == 'true' and routing_policy == 'true'
+        register: create_a_record___r
+      when: command == 'create' and routing_policy == 'true'
+
+    - block:
+      - name: Get dns A record in Route53.
+        route53:
+          type: A
+          state: get
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: rec
+      when: command == 'delete'
+
+    - block:
+      - name: Delete dns A record in Route53.
+        route53:
+          type: A
+          state: absent
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ rec.set.value }}"
+          ttl: "{{ rec.set.ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: delete_a_record
+      when: command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: minutes=1
-      when: (a_record is not skipped)
+      when: (create_a_record is not skipped)
              or
-            (a_record___r is not skipped)
+            (create_a_record___r is not skipped)
              or
-            (a_record___p is not skipped)
-             or
-            (a_record___p_r is not skipped)
+            (delete_a_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
-      when: (a_record is not skipped)
+      when: (create_a_record is not skipped)
              or
-            (a_record___r is not skipped)
+            (create_a_record___r is not skipped)
              or
-            (a_record___p is not skipped)
-             or
-            (a_record___p_r is not skipped)
+            (delete_a_record is not skipped)
 
     - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
-      when: (a_record|skipped)
+      when: (create_a_record|skipped)
              and
-            (a_record___r|skipped)
+            (create_a_record___r|skipped)
              and
-            (a_record___p|skipped)
-             and
-            (a_record___p_r|skipped)
+            (delete_a_record|skipped)
