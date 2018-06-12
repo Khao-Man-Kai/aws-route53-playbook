@@ -9,54 +9,65 @@
   connection: local
   tasks:
     - block:
-      - name: Set dns A-Alias record in Route53
+      - name: Create dns A-Alias record in Route53
         route53:
           type: A
-          command: "{{ command }}"    # create or delete
+          command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
           value: "{{ elb_dns_name }}"
           ttl: "{{ ttl }}"
-          overwrite: true
-          alias: True
-          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
-        register: a_alias_record
-      when: type == 'A'and private_hosted_zone == 'false'
-
-    - block:
-      - name: Set dns A-Alias record in Route53
-        route53:
-          type: A
-          command: "{{ command }}"    # create or delete
-          zone: "{{ zone }}"
-          record: "{{ record }}"
-          value: "{{ elb_dns_name }}"
-          ttl: "{{ ttl }}"
-          overwrite: true
+#          overwrite: true
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
           private_zone: "{{ private_hosted_zone }}"
-        register: a_alias_record___p
-      when: type == 'A'and private_hosted_zone == 'true'
+        register: create_a_alias_record
+      when: command == 'create'
+
+    - block:
+      - name: Get dns A record in Route53.
+        route53:
+          type: A
+          state: get
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: rec
+      when: command == 'delete'
+
+    - block:
+      - name: Delete dns A record in Route53.
+        route53:
+          type: A
+          state: absent
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ rec.set.value }}"
+          ttl: "{{ rec.set.ttl }}"
+          alias: True
+          alias_hosted_zone_id: "{{ rec.set.alias_hosted_zone_id }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: delete_a_alias_record
+      when: command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: minutes=1
-      when: (a_alias_record is not skipped)
+      when: (create_a_alias_record is not skipped)
              or
-            (a_alias_record___p is not skipped)
+            (delete_a_alias_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
-      when: (a_alias_record is not skipped)
+      when: (create_a_alias_record is not skipped)
              or
-            (a_alias_record___p is not skipped)
+            (delete_a_alias_record is not skipped)
 
     - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
-      when: (a_alias_record|skipped)
+      when: (create_a_alias_record|skipped)
              and
-            (a_alias_record___p|skipped)
+            (delete_a_alias_record|skipped)

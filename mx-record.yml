@@ -7,50 +7,61 @@
   connection: local
   tasks:
     - block:
-      - name: Set hosted zones dns MX record in Route53
+      - name: Create dns MX record in Route53.
         route53:
           type: MX
-          command: "{{ command }}"   # create or delete
+          command: create
           zone: "{{ zone }}"
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
-          overwrite: true
-        register: mx_record
-      when: private_hosted_zone == 'false'
+#          overwrite: true
+          private_zone: "{{ private_hosted_zone }}"
+        register: create_mx_record
+      when: command == 'create'
 
     - block:
-      - name: Set private hosted zones dns MX record in Route53
+      - name: Get dns MX record in Route53.
         route53:
           type: MX
-          command: "{{ command }}"   # create or delete
+          state: get
           zone: "{{ zone }}"
           record: "{{ record }}"
-          value: "{{ value }}"
-          ttl: "{{ ttl }}"
-          overwrite: true
           private_zone: "{{ private_hosted_zone }}"
-        register: mx_record___p
-      when: private_hosted_zone == 'true'
+        register: rec
+      when: command == 'delete'
+
+    - block:
+      - name: Delete dns MX record in Route53.
+        route53:
+          type: MX
+          state: absent
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ rec.set.value }}"
+          ttl: "{{ rec.set.ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+        register: delete_mx_record
+      when: command == 'delete'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: minutes=1
-      when: (mx_record is not skipped)
+      when: (create_mx_record is not skipped)
              or
-            (mx_record___p is not skipped)
+            (delete_mx_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
-      when: (mx_record is not skipped)
+      when: (create_mx_record is not skipped)
              or
-            (mx_record___p is not skipped)
+            (delete_mx_record is not skipped)
 
     - block:
       - name: Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
-      when: (mx_record|skipped)
+      when: (create_mx_record|skipped)
              and
-            (mx_record___p|skipped)
+            (delete_mx_record|skipped)
