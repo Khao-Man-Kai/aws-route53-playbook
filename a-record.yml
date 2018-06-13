@@ -6,7 +6,7 @@
   gather_facts: no
   connection: local
   tasks:
-    - bblock:
+    - block:
       - name: Create dns A record in Route53
         route53:
           type: A
