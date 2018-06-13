@@ -37,6 +37,34 @@
       when: command == 'create' and routing_policy == 'true'
 
     - block:
+      - name: Change dns A record in Route53
+        route53:
+          type: A
+          command: present
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+          overwrite: true
+        register: change_a_record
+      when: command == 'change' and routing_policy == 'false'
+
+    - block:
+      - name: Change dns A record and routing policy in Route53
+        route53:
+          type: A
+          command: present
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+          overwrite: true
+        register: change_a_record___r
+      when: command == 'change' and routing_policy == 'true'
+
+    - block:
       - name: Get dns A record in Route53.
         route53:
           type: A
@@ -67,6 +95,10 @@
              or
             (create_a_record___r is not skipped)
              or
+            (change_a_record is not skipped)
+             or
+            (change_a_record___r is not skipped)
+             or
             (delete_a_record is not skipped)
 
     - block:
@@ -75,6 +107,10 @@
       when: (create_a_record is not skipped)
              or
             (create_a_record___r is not skipped)
+             or
+            (change_a_record is not skipped)
+             or
+            (change_a_record___r is not skipped)
              or
             (delete_a_record is not skipped)
 
@@ -85,5 +121,9 @@
       when: (create_a_record|skipped)
              and
             (create_a_record___r|skipped)
+             and
+            (change_a_record|skipped)
+             and
+            (change_a_record___r|skipped)
              and
             (delete_a_record|skipped)

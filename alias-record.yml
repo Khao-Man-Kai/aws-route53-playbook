@@ -17,13 +17,28 @@
           record: "{{ record }}"
           value: "{{ elb_dns_name }}"
           ttl: "{{ ttl }}"
-#          overwrite: true
           alias: True
           alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
           private_zone: "{{ private_hosted_zone }}"
         register: create_a_alias_record
       when: command == 'create'
 
+    - block:
+      - name: Change dns Alias record in Route53.
+        route53:
+          type: A
+          command: present
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ elb_dns_name }}"
+          ttl: "{{ ttl }}"
+          alias: True
+          alias_hosted_zone_id: "{{ elb_hosted_zone_id }}"
+          private_zone: "{{ private_hosted_zone }}"
+          overwrite: true
+        register: change_a_alias_record
+      when: command == 'change' 
+       
     - block:
       - name: Get dns A record in Route53.
         route53:
@@ -55,12 +70,16 @@
         pause: minutes=1
       when: (create_a_alias_record is not skipped)
              or
+            (change_a_alias_record is not skipped)
+             or
             (delete_a_alias_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
       when: (create_a_alias_record is not skipped)
+             or
+            (change_a_alias_record is not skipped)
              or
             (delete_a_alias_record is not skipped)
 
@@ -69,5 +88,7 @@
         route53:
         failed_when: true
       when: (create_a_alias_record|skipped)
+             and
+            (change_a_alias_record|skipped)
              and
             (delete_a_alias_record|skipped)

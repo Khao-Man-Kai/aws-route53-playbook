@@ -15,11 +15,24 @@
           record: "{{ record }}"
           value: "{{ value }}"
           ttl: "{{ ttl }}"
-#          overwrite: true
           private_zone: "{{ private_hosted_zone }}"
         register: create_mx_record
       when: command == 'create'
 
+    - block:
+      - name: Change dns MX record in Route53.
+        route53:
+          type: MX
+          command: present
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ value }}"
+          ttl: "{{ ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+          overwrite: true
+        register: change_mx_record
+      when: command == 'change' 
+       
     - block:
       - name: Get dns MX record in Route53.
         route53:
@@ -49,12 +62,16 @@
         pause: minutes=1
       when: (create_mx_record is not skipped)
              or
+            (change_mx_record is not skipped)
+             or
             (delete_mx_record is not skipped)
 
     - block:
       - name: DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
       when: (create_mx_record is not skipped)
+             or
+            (change_mx_record is not skipped)
              or
             (delete_mx_record is not skipped)
 
@@ -63,5 +80,7 @@
         route53:
         failed_when: true
       when: (create_mx_record|skipped)
+             and
+            (change_mx_record|skipped)
              and
             (delete_mx_record|skipped)
