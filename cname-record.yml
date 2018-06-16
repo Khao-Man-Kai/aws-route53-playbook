@@ -59,7 +59,7 @@
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
-        pause: minutes=1
+        pause: seconds=30
       when: (create_cname_record is not skipped)
              or
             (change_cname_record is not skipped)
