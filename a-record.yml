@@ -60,6 +60,10 @@
           value: "{{ value }}"
           ttl: "{{ ttl }}"
           private_zone: "{{ private_hosted_zone }}"
+          # Routing policy
+          weight: "{{ weight }}"
+          identifier: "{{ set_id }}"
+#          health_check: "{{ health_check_id }}"
           overwrite: true
         register: change_a_record___r
       when: command == 'change' and routing_policy == 'true'
