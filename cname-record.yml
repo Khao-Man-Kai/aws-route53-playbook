@@ -7,6 +7,10 @@
   connection: local
   tasks:
     - block:
+      - name: Before - DNS lookup that {{ type }} record in Route53
+        debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
+
+    - block:
       - name: Create dns CNAME record in Route53.
         route53:
           type: CNAME
