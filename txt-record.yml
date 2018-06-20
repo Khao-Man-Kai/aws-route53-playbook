@@ -71,7 +71,7 @@
             (delete_txt_record is not skipped)
 
     - block:
-      - name: DNS lookup that TXT record in Route53
+      - name: After - DNS lookup that TXT record in Route53
         debug: msg="The dns lookup for type TXT, record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype=TXT" ) }}"
       when: (create_txt_record is not skipped)
              or

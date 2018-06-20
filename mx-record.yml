@@ -71,7 +71,7 @@
             (delete_mx_record is not skipped)
 
     - block:
-      - name: DNS lookup that {{ type }} record in Route53
+      - name: After - DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
       when: (create_mx_record is not skipped)
              or
