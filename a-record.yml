@@ -98,7 +98,7 @@
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
-        pause: seconds=30
+        pause: seconds=60
       when: (create_a_record is not skipped)
              or
             (create_a_record___r is not skipped)

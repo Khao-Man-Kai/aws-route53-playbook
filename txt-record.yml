@@ -63,7 +63,7 @@
 
     - block:
       - name: Wait until it is reflected TXT record "{{ record }}"
-        pause: seconds=30
+        pause: seconds=60
       when: (create_txt_record is not skipped)
              or
             (change_txt_record is not skipped)

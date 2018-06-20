@@ -71,7 +71,7 @@
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
-        pause: seconds=30
+        pause: seconds=60
       when: (create_a_alias_record is not skipped)
              or
             (change_a_alias_record is not skipped)
