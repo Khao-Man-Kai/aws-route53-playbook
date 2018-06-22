@@ -26,6 +26,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: create_a_alias_record
       when: command == 'create'
+            and
+            type == 'A'
 
     - block:
       - name: Change dns Alias record in Route53.
@@ -42,6 +44,8 @@
           overwrite: true
         register: change_a_alias_record
       when: command == 'change' 
+            and
+            type == 'A'
        
     - block:
       - name: Get dns A record in Route53.
@@ -53,6 +57,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: rec
       when: command == 'delete'
+            and
+            type == 'A'
 
     - block:
       - name: Delete dns A record in Route53.
@@ -68,6 +74,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: delete_a_alias_record
       when: command == 'delete'
+            and
+            type == 'A'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"

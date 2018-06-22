@@ -22,6 +22,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: create_mx_record
       when: command == 'create'
+            and 
+            type == 'MX'
 
     - block:
       - name: Change dns MX record in Route53.
@@ -36,6 +38,8 @@
           overwrite: true
         register: change_mx_record
       when: command == 'change' 
+            and 
+            type == 'MX'
        
     - block:
       - name: Get dns MX record in Route53.
@@ -47,6 +51,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: rec
       when: command == 'delete'
+            and 
+            type == 'MX'
 
     - block:
       - name: Delete dns MX record in Route53.
@@ -60,6 +66,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: delete_mx_record
       when: command == 'delete'
+            and 
+            type == 'MX'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"

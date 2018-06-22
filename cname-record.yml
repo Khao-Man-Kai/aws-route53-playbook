@@ -22,6 +22,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: create_cname_record
       when: command == 'create'
+            and 
+            type == 'CNAME'
 
     - block:
       - name: Change dns CNAME record in Route53.
@@ -36,6 +38,8 @@
           overwrite: true
         register: change_cname_record
       when: command == 'change' 
+            and 
+            type == 'CNAME'
        
     - block:
       - name: Get dns CNAME record in Route53.
@@ -47,6 +51,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: rec
       when: command == 'delete'
+            and 
+            type == 'CNAME'
 
     - block:
       - name: Delete dns CNAME record in Route53.
@@ -60,6 +66,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: delete_cname_record
       when: command == 'delete'
+            and 
+            type == 'CNAME'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"

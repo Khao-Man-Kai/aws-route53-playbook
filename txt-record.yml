@@ -22,6 +22,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: create_txt_record
       when: command == 'create' 
+            and
+            type == 'TXT'
        
     - block:
       - name: Change dns TXT record in Route53
@@ -36,6 +38,8 @@
           overwrite: true
         register: change_txt_record
       when: command == 'change' 
+            and
+            type == 'TXT'
        
     - block:
       - name: Get dns TXT record in Route53.
@@ -47,6 +51,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: rec
       when: command == 'delete'
+            and
+            type == 'TXT'
 
     - block:
       - name: Delete dns TXT record in Route53.
@@ -60,6 +66,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: delete_txt_record
       when: command == 'delete'
+            and
+            type == 'TXT'
 
     - block:
       - name: Wait until it is reflected TXT record "{{ record }}"

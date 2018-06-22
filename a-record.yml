@@ -21,7 +21,11 @@
           ttl: "{{ ttl }}"
           private_zone: "{{ private_hosted_zone }}"
         register: create_a_record
-      when: command == 'create' and routing_policy == 'false'
+      when: command == 'create' 
+            and 
+            type == 'A'
+            and
+            routing_policy == 'false'
 
     - block:
       - name: Create dns A record and routing policy in Route53
@@ -38,7 +42,11 @@
           identifier: "{{ set_id }}"
 #          health_check: "{{ health_check_id }}"
         register: create_a_record___r
-      when: command == 'create' and routing_policy == 'true'
+      when: command == 'create' 
+            and 
+            type == 'A'
+            and 
+            routing_policy == 'true'
 
     - block:
       - name: Change dns A record in Route53
@@ -52,7 +60,11 @@
           private_zone: "{{ private_hosted_zone }}"
           overwrite: true
         register: change_a_record
-      when: command == 'change' and routing_policy == 'false'
+      when: command == 'change' 
+            and 
+            type == 'A'
+            and 
+            routing_policy == 'false'
 
     - block:
       - name: Change dns A record and routing policy in Route53
@@ -70,7 +82,11 @@
 #          health_check: "{{ health_check_id }}"
           overwrite: true
         register: change_a_record___r
-      when: command == 'change' and routing_policy == 'true'
+      when: command == 'change' 
+            and 
+            type == 'A'
+            and 
+            routing_policy == 'true'
 
     - block:
       - name: Get dns A record in Route53.
@@ -82,6 +98,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: rec
       when: command == 'delete'
+            and 
+            type == 'A'
 
     - block:
       - name: Delete dns A record in Route53.
@@ -95,6 +113,8 @@
           private_zone: "{{ private_hosted_zone }}"
         register: delete_a_record
       when: command == 'delete'
+            and 
+            type == 'A'
 
     - block:
       - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
