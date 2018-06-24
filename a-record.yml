@@ -5,7 +5,7 @@
 - hosts: localhost
   gather_facts: no
   connection: local
-  tasks:
+  asks:
     - block:
       - name: Before - DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
