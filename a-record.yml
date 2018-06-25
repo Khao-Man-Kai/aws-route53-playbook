@@ -7,11 +7,11 @@
   connection: local
   tasks:
     - block:
-      - name: Before - DNS lookup that {{ type }} record in Route53
+      - name: 1.Before - DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
 
     - block:
-      - name: Create dns A record in Route53
+      - name: 2.Create A record in Route53
         route53:
           type: A
           command: create
@@ -28,7 +28,7 @@
             routing_policy == 'false'
 
     - block:
-      - name: Create dns A record and routing policy in Route53
+      - name: 3.Create A record and routing policy in Route53
         route53:
           type: A
           command: create
@@ -49,7 +49,7 @@
             routing_policy == 'true'
 
     - block:
-      - name: Change dns A record in Route53
+      - name: 4.Change A record in Route53
         route53:
           type: A
           command: present
@@ -67,7 +67,7 @@
             routing_policy == 'false'
 
     - block:
-      - name: Change dns A record and routing policy in Route53
+      - name: 5.Change A record and routing policy in Route53
         route53:
           type: A
           command: present
@@ -89,7 +89,7 @@
             routing_policy == 'true'
 
     - block:
-      - name: Get dns A record in Route53.
+      - name: 6.Get A record in Route53.
         route53:
           type: A
           state: get
@@ -102,7 +102,7 @@
             type == 'A'
 
     - block:
-      - name: Delete dns A record in Route53.
+      - name: 7.Delete dns A record in Route53.
         route53:
           type: A
           state: absent
@@ -117,7 +117,7 @@
             type == 'A'
 
     - block:
-      - name: Wait until it is reflected "{{ type }}" record "{{ record }}"
+      - name: 8.Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: seconds=60
       when: (create_a_record is not skipped)
              or
@@ -130,7 +130,7 @@
             (delete_a_record is not skipped)
 
     - block:
-      - name: After - DNS lookup that {{ type }} record in Route53
+      - name: 9.After - DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
       when: (create_a_record is not skipped)
              or
@@ -143,7 +143,7 @@
             (delete_a_record is not skipped)
 
     - block:
-      - name: Exception Handler - Invalid parameter resources
+      - name: 10.Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
       when: (create_a_record|skipped)
