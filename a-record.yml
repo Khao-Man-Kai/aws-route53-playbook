@@ -117,7 +117,28 @@
             type == 'A'
 
     - block:
-      - name: 8.Wait until it is reflected "{{ type }}" record "{{ record }}"
+      - name: 8.Delete A record and routing policy in Route53.
+        route53:
+          type: A
+          state: absent
+          zone: "{{ zone }}"
+          record: "{{ record }}"
+          value: "{{ rec.set.value }}"
+          ttl: "{{ rec.set.ttl }}"
+          private_zone: "{{ private_hosted_zone }}"
+          # Routing policy
+          weight: "{{ weight }}"
+          identifier: "{{ set_id }}"
+#          health_check: "{{ health_check_id }}"
+        register: delete_a_record
+      when: command == 'delete'
+            and 
+            type == 'A'
+            and 
+            routing_policy == 'true'
+
+    - block:
+      - name: 9.Wait until it is reflected "{{ type }}" record "{{ record }}"
         pause: seconds=60
       when: (create_a_record is not skipped)
              or
@@ -130,7 +151,7 @@
             (delete_a_record is not skipped)
 
     - block:
-      - name: 9.After - DNS lookup that {{ type }} record in Route53
+      - name: 10.After - DNS lookup that {{ type }} record in Route53
         debug: msg="The dns lookup for type "{{ type }}", record "{{ record }}". is {{ lookup('dig', "{{ record }}" , "qtype={{ type }}" ) }}"
       when: (create_a_record is not skipped)
              or
@@ -143,7 +164,7 @@
             (delete_a_record is not skipped)
 
     - block:
-      - name: 10.Exception Handler - Invalid parameter resources
+      - name: 11.Exception Handler - Invalid parameter resources
         route53:
         failed_when: true
       when: (create_a_record|skipped)
