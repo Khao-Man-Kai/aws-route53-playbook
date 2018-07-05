@@ -115,6 +115,8 @@
       when: command == 'delete'
             and 
             type == 'A'
+            and 
+            routing_policy == 'false'
 
     - block:
       - name: 8.Delete A record and routing policy in Route53.
